@@ -13,7 +13,12 @@ class WelcomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Welcome to the App'),
+            const Text(
+              'Welcome to satellite tracker',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,),
+              ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:satellite_tracker/routes/app_router.dart';
+import 'package:geolocator/geolocator.dart';
 
 @RoutePage()
 class InputScreen extends StatefulWidget {
@@ -13,6 +14,50 @@ class InputScreen extends StatefulWidget {
 class _InputScreenState extends State<InputScreen> {
   bool _isSwitched = false;
   final TextEditingController _controller = TextEditingController();
+  String _location = 'Location: Unknown';
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocation();
+  }
+
+  Future<void> _getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() {
+        _location = 'Location: Disabled';
+      });
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          _location = 'Location permissions are denied';
+        });
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        _location = 'Location permissions are permanently denied, we cannot request permissions.';
+      });
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition();
+    setState(() {
+      _location = 'Lat: ${position.latitude}, Lon: ${position.longitude}';
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +101,15 @@ class _InputScreenState extends State<InputScreen> {
             }, 
             child: const Text('Submit')),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            _location,
+            textAlign: TextAlign.center,
+          ),
         ),
       ),
     );
