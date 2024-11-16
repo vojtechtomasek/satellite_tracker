@@ -1,47 +1,28 @@
+import 'dart:convert';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:satellite_tracker/routes/app_router.dart';
 
 @RoutePage()
 class SatelliteInfoScreen extends StatefulWidget {
-  const SatelliteInfoScreen({super.key});
+  final String data;
+  const SatelliteInfoScreen({required this.data});
 
   @override
   State<SatelliteInfoScreen> createState() => _SatelliteInfoScreenState();
 }
 
 class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
-  final satelliteData = {
-    "rise": {
-      "alt": "string",
-      "az": "string",
-      "az_octant": "N",
-      "utc_datetime": "2024-11-08T20:32:49.872Z",
-      "utc_timestamp": 0,
-      "is_sunlit": true,
-      "visible": true
-    },
-    "culmination": {
-      "alt": "string",
-      "az": "string",
-      "az_octant": "N",
-      "utc_datetime": "2024-11-08T20:32:49.872Z",
-      "utc_timestamp": 0,
-      "is_sunlit": true,
-      "visible": true
-    },
-    "set": {
-      "alt": "string",
-      "az": "string",
-      "az_octant": "N",
-      "utc_datetime": "2024-11-08T20:32:49.872Z",
-      "utc_timestamp": 0,
-      "is_sunlit": false,
-      "visible": true
-    },
-    "visible": true
-  };
+  late List<Map<String, dynamic>> passes;
 
+  @override
+  void initState() {
+    super.initState();
+    List<dynamic> jsonList = jsonDecode(widget.data);
+    passes = List<Map<String, dynamic>>.from(jsonList);
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,55 +43,92 @@ class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
           ),
         ],
       ),
-      body: Padding(
+      body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildVisibleStatus(satelliteData['visible'] as bool),
-            const Divider(),
-            _buildPhaseInfo('Rise', satelliteData['rise'] as Map<String, dynamic>),
-            const Divider(),
-            _buildPhaseInfo('Culmination', satelliteData['culmination'] as Map<String, dynamic>),
-            const Divider(),
-            _buildPhaseInfo('Set', satelliteData['set'] as Map<String, dynamic>),
-          ],
-        ),
+        itemCount: passes.length,
+        itemBuilder: (context, index) {
+          final pass = passes[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pass ${index + 1}',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  if (pass['visible'] != null)
+                    Text('Visible: ${pass['visible'] ? 'Yes' : 'No'}'),
+                  if (pass['rise'] != null) ...[
+                    const Divider(),
+                    Text(
+                      'Rise:',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    _buildPhaseInfo(pass['rise'] as Map<String, dynamic>),
+                  ],
+                  if (pass['culmination'] != null) ...[
+                    const Divider(),
+                    Text(
+                      'Culmination:',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    _buildPhaseInfo(pass['culmination'] as Map<String, dynamic>),
+                  ],
+                  if (pass['set'] != null) ...[
+                    const Divider(),
+                    Text(
+                      'Set:',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    _buildPhaseInfo(pass['set'] as Map<String, dynamic>),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildVisibleStatus(bool isVisible) {
-    return Row(
-      children: [
-        Text(
-          'Visible: ${isVisible ? 'Yes' : 'No'}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPhaseInfo(String phaseName, Map<String, dynamic> phaseData) {
-    return Column(
-      children: [
-        Text(
-          phaseName,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
-        ),
-        const SizedBox(height: 8),
-        Text("Time: ${phaseData["utc_datetime"]}"),
-        Text("Direction: ${phaseData["az_octant"]} (Azimuth: ${phaseData["az"]}°)"),
-        Text("Altitude: ${phaseData["alt"]}°"),
-        Row(
-          children: [
-            const Text("Sunlit: "),
-            Icon(
-              phaseData["is_sunlit"] ? Icons.wb_sunny : Icons.nightlight_round,
-              color: phaseData["is_sunlit"] ? Colors.yellow : Colors.blueGrey,
-            ),
-          ],
-        ),
-      ],
+  Widget _buildPhaseInfo(Map<String, dynamic> phaseData) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Time: ${phaseData["utc_datetime"]}'),
+          Text('Altitude: ${phaseData["alt"]}°'),
+          Text('Azimuth: ${phaseData["az"]}°'),
+          Text('Direction: ${phaseData["az_octant"]}'),
+          Row(
+            children: [
+              const Text('Sunlit: '),
+              Icon(
+                phaseData["is_sunlit"] ? Icons.wb_sunny : Icons.nightlight_round,
+                color: phaseData["is_sunlit"] ? Colors.yellow : Colors.blueGrey,
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Text('Visible: '),
+              Text(phaseData["visible"] ? "Yes" : "No")
+            ],
+          )
+        ],
+      ),
     );
   }
 }
+
+// vracet ten json jako objekt do info_screen.dart
+// jsondecoder možná přemístit do satellite_api.dart
+
+
+// impeler
+// flutter scene -> beta verze flutter SDK + beta verze dart SDK

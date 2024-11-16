@@ -30,10 +30,13 @@ class InputRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [SatelliteInfoScreen]
-class SatelliteInfoRoute extends PageRouteInfo<void> {
-  const SatelliteInfoRoute({List<PageRouteInfo>? children})
-      : super(
+class SatelliteInfoRoute extends PageRouteInfo<SatelliteInfoRouteArgs> {
+  SatelliteInfoRoute({
+    required String data,
+    List<PageRouteInfo>? children,
+  }) : super(
           SatelliteInfoRoute.name,
+          args: SatelliteInfoRouteArgs(data: data),
           initialChildren: children,
         );
 
@@ -42,9 +45,21 @@ class SatelliteInfoRoute extends PageRouteInfo<void> {
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const SatelliteInfoScreen();
+      final args = data.argsAs<SatelliteInfoRouteArgs>();
+      return SatelliteInfoScreen(data: args.data);
     },
   );
+}
+
+class SatelliteInfoRouteArgs {
+  const SatelliteInfoRouteArgs({required this.data});
+
+  final String data;
+
+  @override
+  String toString() {
+    return 'SatelliteInfoRouteArgs{data: $data}';
+  }
 }
 
 /// generated route for
