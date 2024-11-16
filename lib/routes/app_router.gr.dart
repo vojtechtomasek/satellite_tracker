@@ -32,7 +32,7 @@ class InputRoute extends PageRouteInfo<void> {
 /// [SatelliteInfoScreen]
 class SatelliteInfoRoute extends PageRouteInfo<SatelliteInfoRouteArgs> {
   SatelliteInfoRoute({
-    required String data,
+    required dynamic data,
     List<PageRouteInfo>? children,
   }) : super(
           SatelliteInfoRoute.name,
@@ -54,7 +54,7 @@ class SatelliteInfoRoute extends PageRouteInfo<SatelliteInfoRouteArgs> {
 class SatelliteInfoRouteArgs {
   const SatelliteInfoRouteArgs({required this.data});
 
-  final String data;
+  final dynamic data;
 
   @override
   String toString() {

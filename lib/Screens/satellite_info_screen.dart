@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:satellite_tracker/routes/app_router.dart';
+import 'package:satellite_tracker/models/satellite_pass.dart';
 
 @RoutePage()
 class SatelliteInfoScreen extends StatefulWidget {
@@ -14,15 +14,15 @@ class SatelliteInfoScreen extends StatefulWidget {
 }
 
 class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
-  late List<Map<String, dynamic>> passes;
+  late List<SatellitePass> passes;
 
   @override
   void initState() {
     super.initState();
     List<dynamic> jsonList = jsonDecode(widget.data);
-    passes = List<Map<String, dynamic>>.from(jsonList);
+    passes = jsonList.map((json) => SatellitePass.fromJson(json)).toList();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,16 +30,12 @@ class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
         title: const Text('Satellite Info'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            context.router.back();
-          },
+          onPressed: () => context.router.back(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.info),
-            onPressed: () {
-             context.router.push(const SatelliteOrbitRoute());
-            },
+            onPressed: () => context.router.push(const SatelliteOrbitRoute()),
           ),
         ],
       ),
@@ -60,31 +56,30 @@ class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 8),
-                  if (pass['visible'] != null)
-                    Text('Visible: ${pass['visible'] ? 'Yes' : 'No'}'),
-                  if (pass['rise'] != null) ...[
+                  Text('Visible: ${pass.visible ? 'Yes' : 'No'}'),
+                  if (pass.rise.isNotEmpty) ...[
                     const Divider(),
                     Text(
                       'Rise:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    _buildPhaseInfo(pass['rise'] as Map<String, dynamic>),
+                    _buildPhaseInfo(pass.rise),
                   ],
-                  if (pass['culmination'] != null) ...[
+                  if (pass.culmination.isNotEmpty) ...[
                     const Divider(),
                     Text(
                       'Culmination:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    _buildPhaseInfo(pass['culmination'] as Map<String, dynamic>),
+                    _buildPhaseInfo(pass.culmination),
                   ],
-                  if (pass['set'] != null) ...[
+                  if (pass.set.isNotEmpty) ...[
                     const Divider(),
                     Text(
                       'Set:',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    _buildPhaseInfo(pass['set'] as Map<String, dynamic>),
+                    _buildPhaseInfo(pass.set),
                   ],
                 ],
               ),
@@ -110,25 +105,12 @@ class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
               const Text('Sunlit: '),
               Icon(
                 phaseData["is_sunlit"] ? Icons.wb_sunny : Icons.nightlight_round,
-                color: phaseData["is_sunlit"] ? Colors.yellow : Colors.blueGrey,
+                color: phaseData["is_sunlit"] ? Colors.amber : Colors.blueGrey,
               ),
             ],
           ),
-          Row(
-            children: [
-              const Text('Visible: '),
-              Text(phaseData["visible"] ? "Yes" : "No")
-            ],
-          )
         ],
       ),
     );
   }
 }
-
-// vracet ten json jako objekt do info_screen.dart
-// jsondecoder možná přemístit do satellite_api.dart
-
-
-// impeler
-// flutter scene -> beta verze flutter SDK + beta verze dart SDK

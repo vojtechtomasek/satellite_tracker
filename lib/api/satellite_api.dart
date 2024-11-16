@@ -9,6 +9,8 @@ class SatelliteApi {
     final url = Uri.parse(
      '$_baseUrl/${params.satelliteId}?lat=${params.latitude}&lon=${params.longitude}&limit=100&days=7&visible_only=${params.visibleOnly}' 
     );
+    print('API URL: ${url.toString()}');
+
     return await http.get(url);
   }
 }
