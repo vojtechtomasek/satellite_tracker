@@ -1,27 +1,12 @@
-import 'dart:convert';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:satellite_tracker/routes/app_router.dart';
-import 'package:satellite_tracker/models/satellite_pass.dart';
+import '../routes/app_router.dart';
+import '../models/satellite_pass.dart';
 
 @RoutePage()
-class SatelliteInfoScreen extends StatefulWidget {
-  final String data;
-  const SatelliteInfoScreen({required this.data});
-
-  @override
-  State<SatelliteInfoScreen> createState() => _SatelliteInfoScreenState();
-}
-
-class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
-  late List<SatellitePass> passes;
-
-  @override
-  void initState() {
-    super.initState();
-    List<dynamic> jsonList = jsonDecode(widget.data);
-    passes = jsonList.map((json) => SatellitePass.fromJson(json)).toList();
-  }
+class SatelliteInfoScreen extends StatelessWidget {
+  final List<SatellitePass> passes;
+  const SatelliteInfoScreen({required this.passes});
 
   @override
   Widget build(BuildContext context) {
@@ -48,41 +33,7 @@ class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
             margin: const EdgeInsets.only(bottom: 16.0),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Pass ${index + 1}',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text('Visible: ${pass.visible ? 'Yes' : 'No'}'),
-                  if (pass.rise.isNotEmpty) ...[
-                    const Divider(),
-                    Text(
-                      'Rise:',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    _buildPhaseInfo(pass.rise),
-                  ],
-                  if (pass.culmination.isNotEmpty) ...[
-                    const Divider(),
-                    Text(
-                      'Culmination:',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    _buildPhaseInfo(pass.culmination),
-                  ],
-                  if (pass.set.isNotEmpty) ...[
-                    const Divider(),
-                    Text(
-                      'Set:',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    _buildPhaseInfo(pass.set),
-                  ],
-                ],
-              ),
+              child: _buildPassInfo(context, pass, index),
             ),
           );
         },
@@ -90,9 +41,47 @@ class _SatelliteInfoScreenState extends State<SatelliteInfoScreen> {
     );
   }
 
+  Widget _buildPassInfo(BuildContext context, SatellitePass pass, int index) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pass ${index + 1}',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 8),
+        Text('Visible: ${pass.visible ? 'Yes' : 'No'}'),
+        if (pass.rise.isNotEmpty) ...[
+          const Divider(),
+          Text(
+            'Rise:',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          _buildPhaseInfo(pass.rise),
+        ],
+        if (pass.culmination.isNotEmpty) ...[
+          const Divider(),
+          Text(
+            'Culmination:',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          _buildPhaseInfo(pass.culmination),
+        ],
+        if (pass.set.isNotEmpty) ...[
+          const Divider(),
+          Text(
+            'Set:',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          _buildPhaseInfo(pass.set),
+        ],
+      ],
+    );
+  }
+
   Widget _buildPhaseInfo(Map<String, dynamic> phaseData) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16.0),
+      padding: const EdgeInsets.only(left: 16.0, top: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

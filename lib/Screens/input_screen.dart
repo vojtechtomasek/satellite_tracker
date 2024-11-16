@@ -67,10 +67,10 @@ class _InputScreenState extends State<InputScreen> {
 
   }
 
-  Future<void> _submitData() async {
+    Future<void> _submitData() async {
     if (_controller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter satellite ID and location'))
+        const SnackBar(content: Text('Enter satellite ID and location')),
       );
       return;
     }
@@ -78,36 +78,32 @@ class _InputScreenState extends State<InputScreen> {
     final satelliteId = int.tryParse(_controller.text);
     if (satelliteId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter valid number'))
+        const SnackBar(content: Text('Enter valid number')),
       );
       return;
     }
 
     try {
       final params = SatelliteParams(
-        satelliteId: satelliteId, 
-        latitude: _currentPosition?.latitude ?? 37, 
-        longitude: _currentPosition?.longitude ?? -122, 
-        visibleOnly: _isSwitched
-        );
+        satelliteId: satelliteId,
+        latitude: _currentPosition?.latitude ?? 37,
+        longitude: _currentPosition?.longitude ?? -122,
+        visibleOnly: _isSwitched,
+      );
 
-        final api = SatelliteApi();
-        final response = await api.getSatelliteData(params);
+      final api = SatelliteApi();
+      final passes = await api.getSatelliteData(params);
 
-        if (!mounted) return;
+      if (!mounted) return;
 
-        if (response.statusCode == 200) {
-          context.router.push(SatelliteInfoRoute(data: response.body));
-        } else {
-          throw Exception('Failed to load satellite data');
-        }
+      context.router.push(SatelliteInfoRoute(passes: passes));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
     }
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {

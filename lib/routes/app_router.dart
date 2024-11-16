@@ -3,6 +3,7 @@ import '../Screens/welcome_screen.dart';
 import '../Screens/input_screen.dart';
 import '../Screens/satellite_info_screen.dart';
 import '../Screens/satellite_orbit_screen.dart';
+import 'package:satellite_tracker/models/satellite_pass.dart';
 
 part 'app_router.gr.dart';
 
